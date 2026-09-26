@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 
 function App() {
   const whatsappNumber = "919365939799";
 
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    "Hi BoostBharat! I want to discuss a project."
-  )}`;
+  const [showOrder, setShowOrder] = useState(false);
+  const [selectedService, setSelectedService] = useState("");
+  const [requirement, setRequirement] = useState("");
+  const [details, setDetails] = useState("");
+  const [orderId, setOrderId] = useState("");
 
   const services = [
     {
@@ -69,6 +71,51 @@ function App() {
     },
   ];
 
+  const openOrder = (service = "") => {
+    setSelectedService(service);
+    setRequirement("");
+    setDetails("");
+    setOrderId("");
+    setShowOrder(true);
+  };
+
+  const generateOrderId = () => {
+    const random = Math.floor(100000 + Math.random() * 900000);
+    return `BB-${random}`;
+  };
+
+  const submitOrder = () => {
+    if (!selectedService || !requirement.trim() || !details.trim()) {
+      alert("Please fill all the required details.");
+      return;
+    }
+
+    const newOrderId = generateOrderId();
+    setOrderId(newOrderId);
+  };
+
+  const sendOrderToWhatsApp = () => {
+    const message = `Hi BoostBharat!
+
+Order ID: ${orderId}
+
+Service: ${selectedService}
+
+What I need:
+${requirement}
+
+How I want it:
+${details}
+
+Please check and confirm my order.`;
+
+    const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappLink, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
 
@@ -98,14 +145,12 @@ function App() {
             </a>
           </div>
 
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            onClick={() => openOrder()}
             className="rounded-full bg-cyan-400 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
           >
-            WhatsApp Us
-          </a>
+            Order Now
+          </button>
         </div>
       </nav>
 
@@ -141,38 +186,31 @@ function App() {
               Explore Services
             </a>
 
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              onClick={() => openOrder()}
               className="rounded-full border border-white/20 px-8 py-4 font-bold transition hover:border-cyan-400 hover:text-cyan-400"
             >
-              Start a Project →
-            </a>
+              Start an Order →
+            </button>
 
           </div>
 
           <div className="mt-20 grid grid-cols-2 gap-4 md:grid-cols-4">
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-3xl font-bold text-cyan-400">AI</h3>
-              <p className="mt-2 text-sm text-slate-400">Smart Solutions</p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-3xl font-bold text-cyan-400">Web</h3>
-              <p className="mt-2 text-sm text-slate-400">Modern Websites</p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-3xl font-bold text-cyan-400">Auto</h3>
-              <p className="mt-2 text-sm text-slate-400">Business Automation</p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-3xl font-bold text-cyan-400">Creative</h3>
-              <p className="mt-2 text-sm text-slate-400">Design & Editing</p>
-            </div>
+            {[
+              ["AI", "Smart Solutions"],
+              ["Web", "Modern Websites"],
+              ["Auto", "Business Automation"],
+              ["Creative", "Design & Editing"],
+            ].map(([title, text]) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-white/10 bg-white/5 p-6"
+              >
+                <h3 className="text-3xl font-bold text-cyan-400">{title}</h3>
+                <p className="mt-2 text-sm text-slate-400">{text}</p>
+              </div>
+            ))}
 
           </div>
         </div>
@@ -192,16 +230,15 @@ function App() {
             </h2>
 
             <p className="mt-5 text-slate-400">
-              From building your website to creating content and automating
-              your workflow, BoostBharat provides complete digital services.
+              Choose a service and tell us exactly what you need.
             </p>
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
-            {services.map((service, index) => (
+            {services.map((service) => (
               <div
-                key={index}
+                key={service.title}
                 className="group rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition duration-300 hover:-translate-y-2 hover:border-cyan-400/40 hover:bg-cyan-400/[0.05]"
               >
 
@@ -215,14 +252,12 @@ function App() {
                   {service.text}
                 </p>
 
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-6 inline-block text-sm font-semibold text-cyan-400"
+                <button
+                  onClick={() => openOrder(service.title)}
+                  className="mt-6 font-semibold text-cyan-400"
                 >
-                  Get Started →
-                </a>
+                  Order This Service →
+                </button>
 
               </div>
             ))}
@@ -245,16 +280,15 @@ function App() {
             </h2>
 
             <p className="mx-auto mt-5 max-w-2xl text-slate-400">
-              We create digital experiences that look professional, work
-              smoothly and help businesses build their online presence.
+              Professional digital solutions for businesses and creators.
             </p>
           </div>
 
           <div className="mt-14 grid gap-6 md:grid-cols-2">
 
-            {projects.map((project, index) => (
+            {projects.map((project) => (
               <div
-                key={index}
+                key={project.title}
                 className="group min-h-64 rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-400/10 to-white/[0.03] p-8 transition hover:border-cyan-400/40"
               >
 
@@ -271,14 +305,12 @@ function App() {
                   creators.
                 </p>
 
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-8 inline-block font-semibold text-cyan-400"
+                <button
+                  onClick={() => openOrder()}
+                  className="mt-8 font-semibold text-cyan-400"
                 >
-                  Discuss Your Project →
-                </a>
+                  Start Your Order →
+                </button>
 
               </div>
             ))}
@@ -305,10 +337,10 @@ function App() {
           <div className="mt-16 grid gap-8 md:grid-cols-4">
 
             {[
-              ["01", "Tell Us", "Tell us about your business, idea or project."],
-              ["02", "Plan", "We understand your requirements and create a plan."],
-              ["03", "Build", "Our team works on your website, content or solution."],
-              ["04", "Launch", "We deliver the final project ready for use."],
+              ["01", "Tell Us", "Tell us what you need."],
+              ["02", "Plan", "We understand your requirements."],
+              ["03", "Build", "We work on your project."],
+              ["04", "Deliver", "We deliver the completed work."],
             ].map(([number, title, text]) => (
               <div key={number} className="text-center">
 
@@ -327,7 +359,7 @@ function App() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CONTACT */}
       <section id="contact" className="relative overflow-hidden">
 
         <div className="absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/20 blur-[120px]" />
@@ -343,34 +375,15 @@ function App() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-400">
-            Whether you need a website, AI solution, automation, video editing,
-            photo editing or complete digital support — let's talk.
+            Tell us what you need and place your order directly.
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full bg-cyan-400 px-8 py-4 font-bold text-slate-950 transition hover:bg-cyan-300"
-            >
-              💬 Chat on WhatsApp
-            </a>
-
-            <a
-              href="mailto:hello@boostbharat.com"
-              className="rounded-full border border-white/20 px-8 py-4 font-bold transition hover:border-cyan-400 hover:text-cyan-400"
-            >
-              ✉️ Email Us
-            </a>
-
-          </div>
-
-          <p className="mt-8 text-sm text-slate-500">
-            Available for websites, AI projects, editing, automation & creative
-            work.
-          </p>
+          <button
+            onClick={() => openOrder()}
+            className="mt-10 rounded-full bg-cyan-400 px-8 py-4 font-bold text-slate-950 transition hover:bg-cyan-300"
+          >
+            🚀 Place an Order
+          </button>
 
         </div>
       </section>
@@ -412,16 +425,145 @@ function App() {
 
       </footer>
 
-      {/* FLOATING WHATSAPP */}
-      <a
-        href={whatsappLink}
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-2xl shadow-2xl transition hover:scale-110"
-        aria-label="Chat on WhatsApp"
-      >
-        💬
-      </a>
+      {/* ORDER MODAL */}
+      {showOrder && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm">
+
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-white/10 bg-slate-900 p-7 shadow-2xl">
+
+            {!orderId ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-widest text-cyan-400">
+                      BoostBharat
+                    </p>
+
+                    <h2 className="mt-2 text-3xl font-bold">
+                      Place Your Order
+                    </h2>
+                  </div>
+
+                  <button
+                    onClick={() => setShowOrder(false)}
+                    className="text-2xl text-slate-400 hover:text-white"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="mt-7">
+
+                  <label className="text-sm font-semibold text-slate-300">
+                    What service do you need?
+                  </label>
+
+                  <select
+                    value={selectedService}
+                    onChange={(e) => setSelectedService(e.target.value)}
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                  >
+                    <option value="">Select a service</option>
+
+                    {services.map((service) => (
+                      <option key={service.title} value={service.title}>
+                        {service.title}
+                      </option>
+                    ))}
+                  </select>
+
+                </div>
+
+                <div className="mt-5">
+
+                  <label className="text-sm font-semibold text-slate-300">
+                    What do you need?
+                  </label>
+
+                  <textarea
+                    value={requirement}
+                    onChange={(e) => setRequirement(e.target.value)}
+                    placeholder="Tell us what you want..."
+                    rows="4"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600 focus:border-cyan-400"
+                  />
+
+                </div>
+
+                <div className="mt-5">
+
+                  <label className="text-sm font-semibold text-slate-300">
+                    How do you want it?
+                  </label>
+
+                  <textarea
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
+                    placeholder="Tell us how you want the final result..."
+                    rows="4"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600 focus:border-cyan-400"
+                  />
+
+                </div>
+
+                <button
+                  onClick={submitOrder}
+                  className="mt-7 w-full rounded-xl bg-cyan-400 py-4 font-bold text-slate-950 transition hover:bg-cyan-300"
+                >
+                  Complete Order
+                </button>
+
+                <p className="mt-4 text-center text-xs text-slate-500">
+                  No payment required. You will receive an Order ID after
+                  submitting.
+                </p>
+              </>
+            ) : (
+              <div className="text-center">
+
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 text-4xl">
+                  ✅
+                </div>
+
+                <p className="mt-6 font-semibold uppercase tracking-widest text-green-400">
+                  Order Submitted
+                </p>
+
+                <h2 className="mt-3 text-3xl font-bold">
+                  Your Order ID
+                </h2>
+
+                <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 px-5 py-5">
+                  <p className="text-2xl font-extrabold tracking-wider text-cyan-400">
+                    {orderId}
+                  </p>
+                </div>
+
+                <p className="mt-6 leading-7 text-slate-400">
+                  Please send this Order ID to us on WhatsApp so we can check
+                  and confirm your order.
+                </p>
+
+                <button
+                  onClick={sendOrderToWhatsApp}
+                  className="mt-7 w-full rounded-xl bg-green-500 py-4 font-bold text-white transition hover:bg-green-400"
+                >
+                  💬 Send Order ID on WhatsApp
+                </button>
+
+                <button
+                  onClick={() => setShowOrder(false)}
+                  className="mt-3 w-full rounded-xl border border-white/10 py-3 font-semibold text-slate-300 hover:border-cyan-400 hover:text-cyan-400"
+                >
+                  Close
+                </button>
+
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
